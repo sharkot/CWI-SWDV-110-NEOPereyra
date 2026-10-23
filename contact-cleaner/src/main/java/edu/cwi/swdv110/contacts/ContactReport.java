@@ -2,9 +2,7 @@ package edu.cwi.swdv110.contacts;
 
 import java.util.List;
 
-/** Makes a neatly aligned report of all the cleaned contacts. */
 public final class ContactReport {
-
     private static final String ROW = "%-22s %-30s %-15s %-9s%n";
 
     private ContactReport() { }
@@ -18,18 +16,19 @@ public final class ContactReport {
         report.append(String.format(ROW, "NAME", "EMAIL", "PHONE", "USERNAME"));
         report.append(line).append(System.lineSeparator());
 
-        for (Contact contact : contacts) {
-            String email = contact.email();
+        for (Contact c : contacts) {
+            String email = c.email();
+
             if (!ContactParser.isValidEmail(email)) {
                 email = "!! " + email;
                 badEmails++;
             }
-            if (contact.phone().equals("INVALID")) {
+            if (c.phone().equals("INVALID")) {
                 badPhones++;
             }
 
-            String username = ContactParser.makeUsername(contact.name());
-            report.append(String.format(ROW, contact.name(), email, contact.phone(), username));
+            report.append(String.format(ROW, c.name(), email, c.phone(),
+                    ContactParser.makeUsername(c.name())));
         }
 
         report.append(line).append(System.lineSeparator());

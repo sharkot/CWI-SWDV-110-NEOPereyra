@@ -5,36 +5,39 @@ import java.util.Scanner;
 
 public class ToDoListManager {
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
+        Scanner sc = new Scanner(System.in);
         List<String> tasks = new ArrayList<>();
-        boolean running = true;
 
-        System.out.println("Welcome to your To-do List Manager!");
+        System.out.println("My To-Do List :)");
 
-        while (running) {
-            System.out.println("\nCommands: add, remove, list, done, sort, move, quit");
-            System.out.print("Enter a command: ");
-            String input = scanner.nextLine().trim();
-            String[] parts = input.split("\\s+");
-            String command = parts[0].toLowerCase();
+        while (true) {
+            System.out.print("\nadd, remove, list, done, sort, move, quit: ");
+            String input = sc.nextLine().trim();
+
+            if (input.isEmpty()) {
+                System.out.println("You gotta type something lol");
+                continue;
+            }
+
+            String[] words = input.split("\\s+");
+            String command = words[0].toLowerCase();
 
             switch (command) {
                 case "add":
-                    System.out.print("What task do you want to add? ");
-                    String task = scanner.nextLine().trim();
+                    System.out.print("New task: ");
+                    String task = sc.nextLine().trim();
                     if (task.isEmpty()) {
-                        System.out.println("Please enter a task first.");
+                        System.out.println("Can't add nothing 😭");
                     } else {
                         tasks.add(task);
-                        System.out.println("Task added!");
+                        System.out.println("Added!");
                     }
                     break;
 
                 case "list":
                     if (tasks.isEmpty()) {
-                        System.out.println("Your to-do list is empty.");
+                        System.out.println("No tasks yet, nice.");
                     } else {
-                        System.out.println("Your tasks:");
                         for (int i = 0; i < tasks.size(); i++) {
                             System.out.println((i + 1) + ". " + tasks.get(i));
                         }
@@ -44,73 +47,72 @@ public class ToDoListManager {
                 case "remove":
                 case "done":
                     try {
-                        int number;
-                        if (parts.length > 1) {
-                            number = Integer.parseInt(parts[1]);
-                        } else {
-                            System.out.print("Enter the task number: ");
-                            number = Integer.parseInt(scanner.nextLine().trim());
+                        String num = words.length > 1 ? words[1] : "";
+                        if (num.isEmpty()) {
+                            System.out.print("Task number: ");
+                            num = sc.nextLine();
                         }
+                        int index = Integer.parseInt(num.trim()) - 1;
 
-                        if (number < 1 || number > tasks.size()) {
-                            System.out.println("That task number doesn't exist. Try another one!");
+                        if (index < 0 || index >= tasks.size()) {
+                            System.out.println("That task number isn't on the list.");
                         } else {
-                            String removedTask = tasks.remove(number - 1);
+                            String removed = tasks.remove(index);
                             if (command.equals("done")) {
-                                System.out.println("Nice job! Completed: " + removedTask);
+                                System.out.println("Done with " + removed + ". W!");
                             } else {
-                                System.out.println("Removed: " + removedTask);
+                                System.out.println("Removed " + removed);
                             }
                         }
                     } catch (NumberFormatException e) {
-                        System.out.println("Please enter a valid task number.");
+                        System.out.println("That's not a number lol");
                     }
                     break;
 
                 case "sort":
                     Collections.sort(tasks);
-                    System.out.println("Tasks sorted alphabetically!");
+                    System.out.println("Sorted!");
                     break;
 
                 case "move":
                     try {
-                        int from;
-                        int to;
-                        if (parts.length >= 3) {
-                            from = Integer.parseInt(parts[1]);
-                            to = Integer.parseInt(parts[2]);
-                        } else {
-                            System.out.print("Task number to move: ");
-                            from = Integer.parseInt(scanner.nextLine().trim());
-                            System.out.print("Move it to number: ");
-                            to = Integer.parseInt(scanner.nextLine().trim());
+                        String fromText = words.length > 1 ? words[1] : "";
+                        String toText = words.length > 2 ? words[2] : "";
+                        if (fromText.isEmpty()) {
+                            System.out.print("Move task #: ");
+                            fromText = sc.nextLine();
                         }
-                        move(tasks, from, to);
+                        if (toText.isEmpty()) {
+                            System.out.print("Move to #: ");
+                            toText = sc.nextLine();
+                        }
+                        move(tasks, Integer.parseInt(fromText.trim()),
+                                Integer.parseInt(toText.trim()));
                     } catch (NumberFormatException e) {
-                        System.out.println("Please enter valid task numbers.");
+                        System.out.println("Use numbers for move.");
                     }
                     break;
 
                 case "quit":
-                    running = false;
-                    System.out.println("Goodbye! See you next time!");
-                    break;
+                    System.out.println("Later!");
+                    sc.close();
+                    return;
 
                 default:
-                    System.out.println("I don't know that command. Please try again!");
+                    System.out.println("Not a command. Try again!");
             }
         }
-        scanner.close();
     }
 
-    public static void move(List<String> tasks, int indexToMoveFrom, int indexToMoveTo) {
-        if (indexToMoveFrom < 1 || indexToMoveFrom > tasks.size()
-                || indexToMoveTo < 1 || indexToMoveTo > tasks.size()) {
-            System.out.println("That task number doesn't exist. Try another one!");
-        } else {
-            String task = tasks.remove(indexToMoveFrom - 1);
-            tasks.add(indexToMoveTo - 1, task);
-            System.out.println("Task moved!");
+    // Task numbers start at 1, but list indexes start at 0.
+    public static void move(List<String> tasks, int from, int to) {
+        if (from < 1 || from > tasks.size() || to < 1 || to > tasks.size()) {
+            System.out.println("That task number isn't on the list.");
+            return;
         }
+
+        String task = tasks.remove(from - 1);
+        tasks.add(to - 1, task);
+        System.out.println("Moved!");
     }
 }
